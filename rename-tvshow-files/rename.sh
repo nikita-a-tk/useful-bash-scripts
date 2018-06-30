@@ -1,41 +1,39 @@
 #!/bin/bash
 
-#Variable="path"
-#Variable="name"
-#Variable="beginSeason"
-#Variable="endSeason"
-#Variable="beginEpisode"
-#Variable="endEpisode"
-#Variable="seasons"
-#Variable="episodes"
+#TODO: launch from any folder
 
 path=$1
-name=$2
-beginSeason=$3
-endSeason=$4
-beginEpisode=$5
-endEpisode=$6
-seasons={$beginSeason..$endSeason}
-episodes={$beginEpisode..$endEpisode}
-files=$(ls)
+showName=$2
+season=$3
+beginEpisode=$4
+currentEpisode=$beginEpisode
 
 echo path=$path
-echo name=$name
-echo beginSeason=$beginSeason
-echo endSeason=$endSeason
+echo showName=$showName
+echo season=$season
 echo beginEpisode=$beginEpisode
-echo endEpisode=$endEpisode
-echo seasons=$seasons
-echo episodes=$episodes
-echo files=$files
-echo {$beginEpisode..$endEpisode}
-
-#TODO: add extensions
-#TODO: perform tests
 
 currentSeason=$beginSeason
-currentEpisode=$currentEpisode
-for f in $(ls); do
-	echo "$f $name S""$currentSeason""E$currentEpisode"
+
+if [ "$season" -lt 10 ]
+then
+	season="0$season"
+fi
+
+SAVEIFS=$IFS
+IFS=$(echo -en "\n\b")
+for f in $(ls "$path"); do
+	extension=$(echo "$f"|awk -F. '{print $NF}')
+
+	tempEpisode=$currentEpisode
+	if [ "$tempEpisode" -lt 10 ]
+	then
+		tempEpisode="0$tempEpisode"
+	fi
+
+	newName="$showName S""$season""E$tempEpisode.$extension"
+	mv $f $newName && echo "[$f] was renamed to [$newName]"
+
 	currentEpisode=$[currentEpisode+1]
 done
+IFS=$SAVEIFS
